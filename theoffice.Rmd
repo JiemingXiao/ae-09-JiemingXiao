@@ -44,7 +44,7 @@ theoffice %>%
 ```{r lines}
 office_lines <- theoffice %>%
   group_by(season, episode) %>% 
-  mutate(n_lines = n(), lines_jim = sum(character == "Jim")/n_lines, lines_dwight = sum(character == "Dwight")/n_lines, lines_pam = sum(character == "Pam")/n_lines) %>% 
+  mutate(n_lines = n(), lines_jim = sum(character == "Jim")/n_lines, lines_dwight = sum(character == "Dwight")/n_lines, lines_pam = sum(character == "Pam")/n_lines, lines_michael = sum(character == "Michael")/n_lines) %>% 
   ungroup() %>% 
   select(season, episode, episode_name, contains("lines_")) %>% 
   distinct(season, episode, episode_name, .keep_all = TRUE) %>% 
@@ -92,7 +92,13 @@ christmas_episodes <- theoffice %>%
 office_df <- theoffice %>%
   select(season, episode, episode_name, imdb_rating, total_votes, air_date) %>%
   distinct(season, episode, .keep_all =  TRUE) %>%
-  
+  left_join(halloween_episodes, by  = "episode_name") %>%
+  left_join(valentine_episodes, by  = "episode_name") %>%
+  left_join(christmas_episodes, by  = "episode_name") %>%
+  replace_na(list(halloween = 0, valentine = 0, christmas = 0)) %>%
+  mutate(michael = if_else(season >7, 0, 1)) %>%
+  mutate(across(halloween:michael, as.factor)) %>%
+  left_join(office_lines, by = c("season", "episode", "episode_name"))
 ```
 
 ### Exercise 4 - Split the data into training (75%) and testing (25%).
