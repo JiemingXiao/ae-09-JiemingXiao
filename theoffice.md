@@ -8,6 +8,7 @@ library(tidymodels)
 library(schrute)
 library(lubridate)
 library(schrute)
+library(dplyr)
 ```
 
 Use `theoffice` data from the
@@ -212,35 +213,43 @@ office_rec <-recipe(imdb_rating ~ ., data = office_train) %>%
 ### Exercise 7 - Build a workflow for fitting the model specified earlier and using the recipe you developed to preprocess the data.
 
 ``` r
-office_wflow <- workflow() %>%
-  add_model(office_mod) %>%
-  add_recipe(office_rec) 
+#office_wflow <- workflow() %>%
+ # add_model(office_mod) %>%
+  #add_recipe(office_rec) 
 ```
 
 ### Exercise 8 - Fit the model to training data and interpret a couple of the slope coefficients.
 
+``` r
+#office_fit <- office_wflow %>%
+ # fit(data = office_train) 
+#tidy(office_fit)
+```
+
 ### Exercise 9 - Perform 5-fold cross validation and view model performance metrics.
 
 ``` r
-set.seed(345)
-folds <- vfold_cv(___, v = ___)
-folds
+#set.seed(345)
+#folds <- vfold_cv(office_train, v = 5)
+#folds
 
-set.seed(456)
-office_fit_rs <- ___ %>%
-  ___(___)
+#set.seed(456)
+#office_fit_rs <- office_wflow %>%
+ # fit_resamples(folds)
 
-___(office_fit_rs)
+#collect_metrics(office_fit_rs)
 ```
-
-    ## Error: <text>:2:20: unexpected input
-    ## 1: set.seed(345)
-    ## 2: folds <- vfold_cv(__
-    ##                       ^
 
 ### Exercise 10 - Use your model to make predictions for the testing data and calculate the RMSE. Also use the model developed in the [cross validation lesson](https://ids-s1-20.github.io/slides/week-10/w10-d02-cross-validation/w10-d02-cross-validation.html) to make predictions for the testing data and calculate the RMSE as well. Which model did a better job in predicting IMDB scores for the testing data?
 
 #### New model
+
+``` r
+#office_test_pred <- predict(office_fit, new_data = office_test) %>%
+  #bind_cols(office_test%>%select(imdb_rating, episode_name))
+
+#rmse(office_test_pred, truth = imdb_rating, estimate = .pred)
+```
 
 #### Old model
 
@@ -265,11 +274,32 @@ office_fit_old <- office_wflow_old %>%
   fit(data = office_train)
 
 tidy(office_fit_old)
-
-___
 ```
 
-    ## Error: <text>:22:2: unexpected input
-    ## 21: 
-    ## 22: __
-    ##      ^
+    ## # A tibble: 12 × 5
+    ##    term                estimate std.error statistic  p.value
+    ##    <chr>                  <dbl>     <dbl>     <dbl>    <dbl>
+    ##  1 (Intercept)         7.20     0.188        38.4   9.92e-72
+    ##  2 season             -0.0501   0.0140       -3.57  5.04e- 4
+    ##  3 episode             0.0449   0.00877       5.11  1.13e- 6
+    ##  4 total_votes         0.000360 0.0000404     8.89  4.99e-15
+    ##  5 air_date_month_Feb -0.145    0.139        -1.04  2.99e- 1
+    ##  6 air_date_month_Mar -0.376    0.134        -2.81  5.69e- 3
+    ##  7 air_date_month_Apr -0.309    0.131        -2.36  1.96e- 2
+    ##  8 air_date_month_May -0.128    0.162        -0.791 4.30e- 1
+    ##  9 air_date_month_Sep  0.512    0.178         2.88  4.63e- 3
+    ## 10 air_date_month_Oct  0.270    0.139         1.95  5.38e- 2
+    ## 11 air_date_month_Nov  0.116    0.126         0.924 3.57e- 1
+    ## 12 air_date_month_Dec  0.407    0.165         2.47  1.49e- 2
+
+``` r
+office_test_pred_old <- predict(office_fit_old, new_data = office_test) %>%
+  bind_cols(office_test%>%select(imdb_rating, episode_name))
+
+rmse(office_test_pred_old, truth = imdb_rating, estimate = .pred)
+```
+
+    ## # A tibble: 1 × 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rmse    standard       0.403
